@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width,user-scalable=no"/>
+	<title>Wearable UI</title>
+	<link rel="stylesheet"  href="lib/tau/wearable/theme/default/tau.min.css">
+	<link rel="stylesheet" media="all and (-tizen-geometric-shape: circle)" href="lib/tau/wearable/theme/default/tau.circle.min.css">
+	<!-- load theme file for your application -->
+	<link rel="stylesheet"  href="css/style.css">
+	
+
+</head>
+<body>
+		<div id="page-list-lockManage" class="ui-page">
+	
+			<header class="ui-header">
+				<h2 class="ui-title">잠금관리</h2>
+			</header>
+			
+			<div class="ui-content">
+				<ul class="ui-listview">
+				    <li class="li-has-toggle">				
+				        <label> 잠금 활성화
+				            <div class="ui-toggleswitch">
+				                <input type="checkbox" class="ui-switch-input" id="lockActivation" onchange="toggleAction(this.id)">
+						    	<div class="ui-switch-button"></div>
+					    	 </div>
+						</label>
+				    </li>
+				</ul>
+			</div>
+		
+		</div>
+	
+</body>
+
+<script src="js/app.js"></script>
+<script type="text/javascript" src="../lib/tau/wearable/js/tau.min.js"></script>
+</html>
