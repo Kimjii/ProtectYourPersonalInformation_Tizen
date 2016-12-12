@@ -16,15 +16,103 @@
 
 		<div class="ui-content">
 			<ul class="ui-listview">
-				<li><a href="contents/lockmanage.html">잠금관리</a></li>
-				<li><a href="contents/appmanage.html">어플관리</a></li>
-				<li><a href="contents/accountmanage.html">계정관리</a></li>
-				<li><a href="contents/missingmanage.html">분실관리</a></li>
+				<li><a href="#page-list-lockManage">잠금관리</a></li>
+				<li><a href="#page-list-appManage">어플관리</a></li>
+				<li><a href="#page-list-accountManage">계정관리</a></li>
+				<li><a href="#page-list-missingManage">분실관리</a></li>
 			</ul>
 		</div>
 		
 		<div id="toast" class="ui-popup ui-popup-toast">
 			<div id="toast-content" class="ui-popup-content"></div>
+		</div>
+		
+		<div id="1btnPopup" class="ui-popup">
+			<div id="1btn-popup" class="ui-popup-content"></div>
+			<div class="ui-popup-footer ui-bottom-button">
+				<a id="1btnPopup-cancel" href="#" class="ui-btn" data-rel="back">OK</a>
+		</div>
+	</div>
+		
+	</div>
+	
+	<div id="page-list-lockManage" class="ui-page">
+			<header class="ui-header">
+				<h2 class="ui-title">잠금관리</h2>
+			</header>
+			
+			<div class="ui-content">
+				<ul class="ui-listview">
+				    <li class="li-has-toggle">				
+				        <label> 잠금 활성화
+				            <div class="ui-toggleswitch">
+				                <input type="checkbox" class="ui-switch-input" id="lockActivation" onchange="lockToggleAction(this.id)">
+						    	<div class="ui-switch-button"></div>
+					    	 </div>
+						</label>
+				    </li>
+				</ul>
+			</div>
+	</div>
+	
+	<div id="page-list-appManage" class="ui-page">
+			<header class="ui-header">
+				<h2 class="ui-title">어플관리</h2>
+			</header>
+			
+			<div class="ui-content">
+				<ul class="ui-listview">
+				    <li class="li-has-toggle">				
+				        <label id="app-label"> Public/Private
+				            <div class="ui-toggleswitch">
+				                <input type="checkbox" class="ui-switch-input" id="appActivation" onchange="appToggleAction(this.id)">
+						    	<div class="ui-switch-button"></div>
+					    	 </div>
+						</label>
+				    </li>
+				</ul>
+			</div>
+	</div>
+		
+	<div id="page-list-accountManage" class="ui-page">
+			<header class="ui-header">
+				<h2 class="ui-title">계정관리</h2>
+			</header>
+			
+			<div id="account-content" class="ui-content">
+				<ul id="account-list" class="ui-listview"></ul>
+			</div>
+	</div>
+	
+	<div id="page-list-missingManage" class="ui-page">
+			<header class="ui-header">
+				<h2 class="ui-title">분실관리</h2>
+			</header>
+			
+		<div class="ui-content">
+			<ul class="ui-list-missingManage">
+		    	<li class="li-has-toggle">				
+			        <label> 초기화 활성화
+			            <div class="ui-toggleswitch">
+			                <input type="checkbox" class="ui-switch-input" id="missingActivation" onchange="missingToggleAction(this.id)">
+					    	<div class="ui-switch-button"></div>
+				    	 </div>
+					</label>
+			    </li>
+				<li></li>
+			    <li ><a href="#initialization-popup">단말기 초기화</a></li>
+			</ul>
+		</div>
+
+		<div id="initialization-popup" class="ui-popup">
+			<div class="ui-popup-content">
+	         	(주의)연결된 <br>스마트폰을 초기화 <br>하시겠습니까?
+			</div>
+
+			<div class="ui-popup-footer ui-side-button ui-grid-col-2">
+				<a id="2btnPopup-cancel" href="#" class="ui-btn btn-icon-cancel" data-rel="back">Cancel</a>
+				<a id="2btnPopup-ok" href="#" class="ui-btn btn-icon-check" data-rel="back">OK</a>
+			</div>
 		</div>
 		
 	</div>

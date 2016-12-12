@@ -28,6 +28,18 @@
 * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+function getBytes(str) 
+{
+var bytes = [];
+  for (var i = 0; i < str.length; ++i) {
+    bytes.push(str.charCodeAt(i));
+  }
+  return bytes;
+
+}
+function hexToBase64(str) {
+    return getBytes(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
+}
 
 var SAAgent,
     SASocket,
@@ -42,6 +54,21 @@ function createHTML(log_string)
     var content = document.getElementById("toast-content");
     content.innerHTML = log_string;
     tau.openPopup("#toast");
+}
+
+function createImg(img)
+{
+   var content = document.getElementById("1btn-popup");
+   
+   var child = document.getElementById("toast-content");
+   while ( child.hasChildNodes() )
+   {
+        child.removeChild( child.firstChild );       
+   }
+   
+   content.innerHTML = "스마트폰에 누군가 접근했습니다!!";
+   content.appendChild(img);
+   tau.openPopup("#1btnPopup");
 }
 
 connectionListener = {
@@ -81,18 +108,139 @@ connectionListener = {
         SASocket.setSocketStatusListener(onConnectionLost);
 
         dataOnReceive =  function dataOnReceive (channelId, data) {
-            var newData;
+        	
+        	var newData;
+            var separator = "-";
 
             if (!SAAgent.channelIds[0]) {
                 createHTML("Something goes wrong...NO CHANNEL ID!");
                 return;
             }
-            newData = data + " :: " + new Date();
+            
+            if ( data.indexOf(separator) !== -1 ) 
+            	newData = data.split(separator);
+            
+            switch( newData[0] ){
+            	
+            // 	lock manage
+            case '1': 
+        	{
+            	switch( newData[1] ){
+            	case '1':
+            		
+            		if ( newData[2] === '1') // lockactivation btn state changed
+            			document.getElementById("lockActivation").checked = true;
+            		else
+            			document.getElementById("lockActivation").checked = false;
+            		
+            		break;
+            		
+            	case '2':	
+            		// password changed ; android to tizen 의 상황에선 발생하지 않음
+            		break;
+            		
+            	case '3':	// receive capture img when someone's touch
+                	var img = document.createElement('img');
+                	img.src = 'data:image/jpeg;base64,' + newData[2];
+                	createImg(img);
+            		break;
+            	}
+            	
+            	break;
+        	}
+            	
+        	// app manage
+            case '2': 
+            {
+            	var inner = "<div class=\"ui-toggleswitch\"> " +
+            					"<input type=\"checkbox\" class=\"ui-switch-input\" id=\"appActivation\" onchange=\"appToggleAction(this.id)\">" +
+            					"<div class=\"ui-switch-button\"></div>" +
+							"</div>"
+            			
+				var label = document.getElementById("app-label");
+            	
+            	if( newData[1] === '1' ){
+            		if ( newData[2] === '1') // appactivation btn state changed
+            		{
+            		    label.innerHTML = "Public" + inner;
+            		    document.getElementById("appActivation").checked = true;
+            		}
+            		else
+        			{
+            			label.innerHTML = "Private" + inner;
+            			document.getElementById("appActivation").checked = false;
+        			}
+            		
+            		break;
+            	}
+        	}
+            	break;
+            	
+        	// account manage
+            case '3': 
+        	{
+            	var obj;
+            	var jsonData = '{"accounts":' + newData[1] + '}';
+            	obj = JSON.parse(jsonData);
 
-            /* Send new data to Consumer */
+            	var	parent = document.getElementById("account-content"),
+            		elmUL = document.createElement("ul"),
+            		elmRow;
+				            	
+            	while ( parent.hasChildNodes() ){
+            		parent.removeChild( parent.firstChild );
+            	}
+            		       
+
+            	elmUL.className = "ui-listview";
+            	elmUL.id = "account-list";
+            	parent.appendChild(elmUL);
+            	
+            	for( var i = 0; i < obj.accounts.length; i++ )
+        		{
+                	var TITLE = obj.accounts[i].TITLE;
+                	var ACCOUNT = obj.accounts[i].ACCOUNT;
+                	var PASSWORD = obj.accounts[i].PASSWORD;
+                	
+                	elmRow = document.createElement("li");
+                	elmRow.className = "li-has-multiline li-has-2line-sub";
+                	elmRow.innerHTML = '<a>' +	TITLE +
+						'<span class="ui-li-sub-text li-text-sub"> ID : ' + ACCOUNT + '</span>' +
+						'<span class="ui-li-sub-text li-text-sub"> PW : ' + PASSWORD + '</span>' + '</a>' + '</li>';
+                	elmUL.appendChild(elmRow);
+        		}
+            	
+        	}
+        	break;
+            	
+            // missing manage
+            case '4': {
+            	if( newData[1] === '1' ){
+            		if ( newData[2] === '1') // missingactivation btn state changed
+            			document.getElementById("missingActivation").checked = true;
+            		
+            		else
+            			document.getElementById("missingActivation").checked = false;
+            		
+            		break;
+            	}
+            }
+            
+            	break;
+            	
+            default:
+            	break;
+            }
+            
+            SASocket.sendData(SAAgent.channelIds[0], "gear received!");
+            /*
+             * newData = "gear " + data;
+
+            // Send new data to Consumer 
             SASocket.sendData(SAAgent.channelIds[0], newData);
             createHTML("Send massage:<br />" +
                         newData);
+                        */
         };
 
         /* Set listener for incoming data from Consumer */
@@ -161,19 +309,49 @@ webapis.sa.requestSAAgent(requestOnSuccess, requestOnError);
 })(window.tau);
 
 /* lock manage - send */
-function toggleAction(id){
+function lockToggleAction(id){
 	
 	var data;
 	var byteData = [];
 
 	if(document.getElementById(id).checked) {
 		data = '1-1-1';
-		alert('연결된 스마트폰의 잠금 설정을 활성화 되었습니다.');
+		alter("잠금 설정을 활성화 되었습니다.");
 	}
 	else{
 		data = '1-1-2';
-		alert('연결된 스마트폰의 잠금 설정을 해제합니다.');
+		alter("잠금 설정을 해제합니다.");
 	}
 	
 	SASocket.sendData(SAAgent.channelIds[0], data );
 }
+
+/* app manage - send */
+function appToggleAction(id){
+	
+	var data;
+	var byteData = [];
+
+	if(document.getElementById(id).checked) {
+		data = '2-1-1';
+		alter("Public모드로 전환합니다.");
+	}
+	else{
+		data = '2-1-2';
+		alter("Private모드로 전환합니다.");
+	}
+	
+	SASocket.sendData(SAAgent.channelIds[0], data );
+}
+
+/* missing manage - send */
+function missingToggleAction(id){
+	document.getElementById(id).checked = !document.getElementById(id).checked;
+}
+
+document.getElementById('2btnPopup-ok').addEventListener('click', function(ev){
+	var data = '4-2-2'
+	SASocket.sendData(SAAgent.channelIds[0], data );
+});
+	
+
